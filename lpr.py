@@ -152,27 +152,30 @@ def find_car_idx(car_id, db):
         pass
     return []
 
-# populate cars db
-car_db = pd.DataFrame({"ts": [], "email": [], "surname": [], "street": [], 
-                        "home_number":[],  "apt_number":[], "name":[],
-                         "id": [], "car_id": []})
-inq = load_inquiries()
-for i, row in inq.iterrows():
-    car_db = handle_request(row, car_db)
+def main():
+    # populate cars db
+    car_db = pd.DataFrame({"ts": [], "email": [], "surname": [], "street": [], 
+                            "home_number":[],  "apt_number":[], "name":[],
+                            "id": [], "car_id": []})
+    inq = load_inquiries()
+    for i, row in inq.iterrows():
+        car_db = handle_request(row, car_db)
 
-##### REPORTS #####
+    ##### REPORTS #####
 
-# more than two cars
-family_groups = car_db.groupby(["surname", "street", "home_number"])
-p = (family_groups.count() > 2).any(axis=1).values
-family_list = list(family_groups.groups)
-pd.concat([family_groups.get_group(family_list[i]) for i in range(len(p)) if p[i]]).to_csv("review_too_much_cars.csv", index=None)
+    # more than two cars
+    family_groups = car_db.groupby(["surname", "street", "home_number"])
+    p = (family_groups.count() > 2).any(axis=1).values
+    family_list = list(family_groups.groups)
+    pd.concat([family_groups.get_group(family_list[i]) for i in range(len(p)) if p[i]]).to_csv("review_too_much_cars.csv", index=None)
 
-# new families
-reference_date = datetime(2022, 5, 1)
-fam_ts = family_groups.ts.apply(min)
-fam_ts[fam_ts > pd.Timestamp(reference_date)].to_csv("review_new_families.csv")
+    # new families
+    reference_date = datetime(2023, 5, 1)
+    fam_ts = family_groups.ts.apply(min)
+    fam_ts[fam_ts > pd.Timestamp(reference_date)].to_csv("review_new_families.csv")
 
-# cars list to lpr system
-export_to_lpr_format(car_db)
+    # cars list to lpr system
+    export_to_lpr_format(car_db)
 
+if __name__ == "__main__":
+    main()
