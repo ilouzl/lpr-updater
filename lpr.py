@@ -172,7 +172,7 @@ def main():
     # new families
     reference_date = datetime(2023, 5, 1)
     fam_ts = family_groups.ts.apply(min)
-    fam_ts[fam_ts > pd.Timestamp(reference_date)].to_csv("review_new_families.csv")
+    fam_ts[fam_ts > pd.Timestamp(reference_date)].index.to_frame().to_csv("review_new_families.csv", index=False)
 
     # cars list to lpr system
     export_to_lpr_format(car_db)
